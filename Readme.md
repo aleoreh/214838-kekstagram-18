@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Alekssey Orekhovv](https://up.htmlacademy.ru/javascript/18/user/214838).
-* Наставник: `Неизвестно`.
+* Наставник: [Виталий Усик] (https://htmlacademy.ru/profile/id235226).
 
 ---
 
