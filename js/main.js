@@ -1,3 +1,5 @@
+'use strict';
+
 // -------- CONSTANTS --------
 
 var PICTURES_COUNT = 25;
@@ -63,21 +65,21 @@ var range = function (n) {
     res.push(i);
   }
   return res;
-}
+};
 
 // -------- CONSTRUCTORS --------
 
 var initComment = function (avatar, message, name) {
   return {
-    avatar, message, name
-  }
-}
+    avatar: avatar, message: message, name: name
+  };
+};
 
 var initPicture = function (url, description, likes, comments) {
   return {
-    url, description, likes, comments
+    url: url, description: description, likes: likes, comments: comments
   };
-}
+};
 
 // -------- GENERATORS --------
 
@@ -88,7 +90,7 @@ var generateItems = function (itemsCount, generator) {
 
 // ---- comments ----
 
-var generateComment = function (index) {
+var generateComment = function () {
   var avatar = 'img/avatar-' + randomInt(USERS_BOUND) + '.svg';
   var message = MESSAGES[randomInt(MESSAGES.length)];
   var name = USER_NAMES[randomInt(USER_NAMES.length)];
@@ -107,7 +109,7 @@ var generatePicture = function (index) {
   var url = 'photos/' + (index + 1) + '.jpg';
   var description = '';
   var likes = randomInt(LIKES_RANGE[1] - LIKES_RANGE[0]) + LIKES_RANGE[0];
-  comments = generateComments();
+  var comments = generateComments();
 
   return initPicture(url, description, likes, comments);
 };
@@ -126,7 +128,7 @@ var initPictureElement = function (picture) {
   element.querySelector('.picture__comments').textContent = picture.comments.length;
 
   return element;
-}
+};
 
 var showPictures = function (pictureNodes) {
   pictureNodes.forEach(function (element) {
@@ -140,6 +142,6 @@ var init = function () {
   var pictures = generatePictures();
   var pictureNodes = pictures.map(initPictureElement);
   showPictures(pictureNodes);
-}
+};
 
 init();
