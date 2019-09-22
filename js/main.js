@@ -120,7 +120,7 @@ var generatePictures = function () {
 
 // -------- DOM --------
 
-var initPictureElement = function (picture) {
+var initNewPictureElement = function (picture) {
   var element = pictureTemplate.cloneNode(true);
 
   element.querySelector('.picture__img').setAttribute('src', picture.url);
@@ -140,8 +140,8 @@ var showPictures = function (pictureNodes) {
 
 var init = function () {
   var pictures = generatePictures();
-  var pictureNodes = pictures.map(initPictureElement);
-  showPictures(pictureNodes);
+  var newPictureNodes = pictures.map(initNewPictureElement);
+  showPictures(newPictureNodes);
 };
 
 init();
