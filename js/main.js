@@ -4,8 +4,8 @@
 
 var PICTURES_COUNT = 25;
 var LIKES_RANGE = [15, 200];
-var COMMENTS_BOUND = 4; // maximum count of comments
-var USERS_BOUND = 10; // maximum count of users
+var MAX_COMMENTS_COUNT = 4;
+var MAX_USERS_COUNT = 10;
 
 var MESSAGES = [
   'Всё отлично!',
@@ -84,14 +84,13 @@ var initPicture = function (url, description, likes, comments) {
 // -------- GENERATORS --------
 
 var generateItems = function (itemsCount, generator) {
-  var res = range(itemsCount).map(generator);
-  return res;
+  return range(itemsCount).map(generator);
 };
 
 // ---- comments ----
 
 var generateComment = function () {
-  var avatar = 'img/avatar-' + randomInt(USERS_BOUND) + '.svg';
+  var avatar = 'img/avatar-' + randomInt(MAX_USERS_COUNT) + '.svg';
   var message = MESSAGES[randomInt(MESSAGES.length)];
   var name = USER_NAMES[randomInt(USER_NAMES.length)];
 
@@ -99,7 +98,7 @@ var generateComment = function () {
 };
 
 var generateComments = function () {
-  var commentsCount = randomInt(COMMENTS_BOUND) + 1;
+  var commentsCount = randomInt(MAX_COMMENTS_COUNT) + 1;
   return generateItems(commentsCount, generateComment);
 };
 
@@ -112,10 +111,6 @@ var generatePicture = function (index) {
   var comments = generateComments();
 
   return initPicture(url, description, likes, comments);
-};
-
-var generatePictures = function () {
-  return generateItems(PICTURES_COUNT, generatePicture);
 };
 
 // -------- DOM --------
@@ -131,15 +126,19 @@ var initNewPictureElement = function (picture) {
 };
 
 var showPictures = function (pictureNodes) {
+  var fragment = document.createDocumentFragment();
+
   pictureNodes.forEach(function (element) {
-    picturesElement.appendChild(element);
+    fragment.appendChild(element);
   });
+
+  picturesElement.appendChild(fragment);
 };
 
 // -------- INITIALIZATION --------
 
 var init = function () {
-  var pictures = generatePictures();
+  var pictures = generateItems(PICTURES_COUNT, generatePicture);
   var newPictureNodes = pictures.map(initNewPictureElement);
   showPictures(newPictureNodes);
 };
