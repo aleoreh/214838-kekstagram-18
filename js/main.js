@@ -6,6 +6,7 @@ var PICTURES_COUNT = 25;
 var LIKES_RANGE = [15, 200];
 var MAX_COMMENTS_COUNT = 4;
 var MAX_USERS_COUNT = 10;
+var MAX_SOCIAL_PICTURE_AVATARS_COUNT = 5;
 
 var MESSAGES = [
   'Всё отлично!',
@@ -38,6 +39,7 @@ var USER_NAMES = [
 
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 var picturesElement = document.querySelector('.pictures');
+var bigPictureElement = document.querySelector('.big-picture');
 
 // -------- UTILS --------
 
@@ -135,12 +137,47 @@ var showPictures = function (pictureNodes) {
   picturesElement.appendChild(fragment);
 };
 
+var renderSocialCommentElement = function (comment, exampleElement) {
+  var res = exampleElement.cloneNode(true);
+
+  var img = res.querySelector('img');
+  var p = res.querySelector('p');
+
+  img.setAttribute('src', 'img/avatar-' + (randomInt(MAX_SOCIAL_PICTURE_AVATARS_COUNT) + 1) + '.svg');
+  img.setAttribute('alt', comment.name);
+  p.textContent = comment.message;
+
+  return res;
+};
+
+var showBigPictureElement = function (picture) {
+  var bigPictureImgElement = bigPictureElement.querySelector('.big-picture__img');
+  var likesCountElement = bigPictureElement.querySelector('.likes-count');
+  var socialCommentsElement = bigPictureElement.querySelector('.social__comments');
+  var socialCommentElement = socialCommentsElement.querySelector('.social__comment');
+
+  bigPictureImgElement.querySelector('img').setAttribute('src', picture.url);
+  likesCountElement.textContent = picture.likes;
+
+  var socialCommentsFragment = document.createDocumentFragment();
+
+  range(picture.comments.length - 1).forEach(function (i) {
+    socialCommentsFragment.appendChild(renderSocialCommentElement(picture.comments[i], socialCommentElement));
+  });
+
+  socialCommentsElement.parentNode.replaceChild(socialCommentsFragment, socialCommentsElement);
+
+
+  bigPictureElement.classList.remove('hidden');
+};
+
 // -------- INITIALIZATION --------
 
 var init = function () {
   var pictures = generateItems(PICTURES_COUNT, generatePicture);
   var newPictureNodes = pictures.map(initNewPictureElement);
   showPictures(newPictureNodes);
+  showBigPictureElement(pictures[9]);
 };
 
 init();
