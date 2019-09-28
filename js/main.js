@@ -40,13 +40,6 @@ var USER_NAMES = [
 var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
 var picturesElement = document.querySelector('.pictures');
 
-var uploadFileElement = document.querySelector('#upload-file');
-
-var pictureEditorElement = document.querySelector('.big-picture');
-var pictureEditorCloseElement = pictureEditorElement.querySelector('#picture-cancel');
-var pictureEditorImgElement = pictureEditorElement.querySelector('.big-picture__img');
-var pictureEditorLikesCountElement = pictureEditorElement.querySelector('.likes-count');
-
 // -------- UTILS --------
 
 /**
@@ -125,7 +118,7 @@ var generatePicture = function (index) {
 
 var onLoaderChange = function (loader, editor) {
   return function () {
-    return Editor.show(editor, function () {
+    Editor.show(editor, function () {
       return Loader.reset(loader);
     });
   };
@@ -134,51 +127,128 @@ var onLoaderChange = function (loader, editor) {
 // -------- CONTROLS --------
 
 var Editor = {
-  closeButtonClickHandler: function (editor, onClose) {
-    return function () {
-      Editor.hide(editor, onClose);
+  init: function () {
+    var form = document.querySelector('.img-upload__form');
+    var element = form.querySelector('.img-upload__overlay');
+    var effectLevelInputElement = element.querySelector('.effect-level');
+
+    return {
+      form: form,
+      element: element,
+      levelInput: effectLevelInputElement,
     };
   },
-  keyDownEventHandler: function (editor, onClose) {
+  set: function (control) {
+    var effectLevelLineElement = control.element.querySelector('.effect-level__line');
+    effectLevelLineElement.addEventListener('mouseup', Editor.effectLevelLineClickHandler(control));
+
+    control.element.querySelectorAll('input[type="radio"].effects__radio').forEach(function (elem) {
+      elem.addEventListener('click', Editor.effectsRadioClickHandler(control));
+    });
+
+    control.form.addEventListener('submit', Editor.formSubmitHandler(control));
+  },
+  closeButtonClickHandler: function (control, onClose) {
+    return function () {
+      Editor.hide(control, onClose);
+    };
+  },
+  keyDownEventHandler: function (control, onClose) {
     return function (ev) {
       if (ev.key === 'Escape') {
-        Editor.hide(editor, onClose);
+        Editor.hide(control, onClose);
       }
     };
   },
+  effectLevelLineClickHandler: function (control) {
+    return function () {
+      control.levelInput.value = 50; // TODO: рассчитать необходимый уровень
+    };
+  },
+  effectsRadioClickHandler: function (control) {
+    return function () {
+      control.element.parentNode.reset();
+    };
+  },
+  formSubmitHandler: function (control) {
+    return function (ev) {
+      var hashtagsElement = control.form.querySelector('.text__hashtags');
+
+      var tags = hashtagsElement.value.split('#');
+
+      tags.forEach(function (tag) {
+        if (tag.length === 0) {
+          return;
+        }
+        if (tag.length < 3) {
+          hashtagsElement.setCustomValidity('Длина хэштэга не должна быть менее 3-х символов');
+          ev.preventDefault();
+        }
+      });
+    };
+  },
+  show: function (control, onClose) {
+    control.element.classList.remove('hidden');
+
+    var closeButton = control.element.querySelector('#upload-cancel');
+    closeButton.addEventListener('click', Editor.closeButtonClickHandler(control, onClose));
+
+    document.addEventListener('keydown', Editor.keyDownEventHandler(control, onClose));
+  },
+  hide: function (control, onClose) {
+    control.element.removeEventListener('click', Editor.closeButtonClickHandler());
+    document.removeEventListener('keydown', Editor.keyDownEventHandler());
+    control.element.classList.add('hidden');
+    onClose();
+  }
+};
+
+var FullPicture = {
   init: function () {
     return ({
       element: document.querySelector('.big-picture'),
     });
   },
-  set: function (editor, picture) {
-    var likesCountElement = editor.element.querySelector('.likes-count');
-    var socialCommentsElement = editor.element.querySelector('.social__comments');
+  set: function (control, picture) {
+    var likesCountElement = control.element.querySelector('.likes-count');
+    var socialCommentsElement = control.element.querySelector('.social__comments');
     var socialCommentElement = socialCommentsElement.querySelector('.social__comment');
-    var socialCommentsFragment = document.createDocumentFragment();
 
-    editor.element.querySelector('img').setAttribute('src', picture.url);
+    control.element.querySelector('img').setAttribute('src', picture.url);
     likesCountElement.textContent = picture.likes;
 
+    var newSocialCommentsElement = socialCommentsElement.cloneNode(true);
     range(picture.comments.length - 1).forEach(function (i) {
       var newSocialCommentElement = socialCommentElement.cloneNode(true);
-      socialCommentsFragment.appendChild(renderSocialCommentElement(picture.comments[i], newSocialCommentElement));
+      newSocialCommentsElement.appendChild(renderSocialCommentElement(picture.comments[i], newSocialCommentElement));
     });
 
-    socialCommentsElement.parentNode.replaceChild(socialCommentsFragment, socialCommentsElement);
+    socialCommentsElement.parentNode.replaceChild(newSocialCommentsElement, socialCommentsElement);
   },
-  show: function (editor, onClose) {
-    editor.element.classList.remove('hidden');
-
-    var closeButton = editor.element.querySelector('#picture-cancel');
-    closeButton.addEventListener('click', Editor.closeButtonClickHandler(editor, onClose));
-
-    document.addEventListener('keydown', Editor.keyDownEventHandler(editor, onClose));
+  closeButtonClickHandler: function (control, onClose) {
+    return function () {
+      FullPicture.hide(control, onClose);
+    };
   },
-  hide: function (editor, onClose) {
-    editor.element.removeEventListener('click', Editor.closeButtonClickHandler());
-    document.removeEventListener('keydown', Editor.keyDownEventHandler());
-    editor.element.classList.add('hidden');
+  keyDownEventHandler: function (control, onClose) {
+    return function (ev) {
+      if (ev.key === 'Escape') {
+        FullPicture.hide(control, onClose);
+      }
+    };
+  },
+  show: function (control, onClose) {
+    control.element.classList.remove('hidden');
+
+    var closeButton = control.element.querySelector('#picture-cancel');
+    closeButton.addEventListener('click', FullPicture.closeButtonClickHandler(control, onClose));
+
+    document.addEventListener('keydown', FullPicture.keyDownEventHandler(control, onClose));
+  },
+  hide: function (control, onClose) {
+    control.element.removeEventListener('click', FullPicture.closeButtonClickHandler());
+    document.removeEventListener('keydown', FullPicture.keyDownEventHandler());
+    control.element.classList.add('hidden');
     onClose();
   }
 };
@@ -197,7 +267,6 @@ var Loader = {
     loader.element.value = '';
   }
 };
-
 
 // -------- DOM --------
 
@@ -242,8 +311,12 @@ var init = function () {
   showPictures(newPictureNodes);
 
   var loader = Loader.init();
+
+  var fullPicture = FullPicture.init();
+  FullPicture.set(fullPicture, pictures[randomInt(pictures.length - 1)]);
+
   var editor = Editor.init();
-  Editor.set(editor, pictures[randomInt(pictures.length - 1)]);
+  Editor.set(editor);
 
   Loader.set(loader, onLoaderChange(loader, editor));
 };
