@@ -68,6 +68,84 @@ var range = function (n) {
   return res;
 };
 
+var arrayToSet = function (array) {
+  return array.filter(function (v, i) {
+    return array.indexOf(v) === i;
+  });
+};
+
+// -------- HELPERS --------
+
+var Hashtag = {
+  MAX_TAGS_COUNT: 5,
+  MAX_TAG_LENGTH: 20,
+  validate: function (hashtagsString) {
+    var errors = [];
+
+    var tags = hashtagsString.split(' ');
+
+    if (tags.length > Hashtag.MAX_TAGS_COUNT) {
+      errors.push('Должно быть не более ' + Hashtag.MAX_TAGS_COUNT + ' тэгов');
+    }
+
+    tags.forEach(function (tag) {
+      if (tag === '') {
+        return;
+      }
+
+      if (!Hashtag.beginsWithHash(tag)) {
+        errors.push('Должен начинаться с #');
+      }
+
+      if (!Hashtag.isNotOnlyHash(tag)) {
+        errors.push('Не должен состоять только из #');
+      }
+
+      if (!Hashtag.separatedOnlyBySpace(tag)) {
+        errors.push('Тэги должны разделяться только пробелами');
+      }
+
+      if (!Hashtag.noDuplicates(tags)) {
+        errors.push('Один и тот же тэг не может быть использован дважды (тэги нечувствительны к регистру)');
+      }
+
+      if (!Hashtag.fitsMaximumSize(tag, Hashtag.MAX_TAG_LENGTH)) {
+        errors.push('Не должен быть длиннее ' + Hashtag.MAX_TAG_LENGTH + ' символов');
+      }
+    });
+
+    var errorsSet = arrayToSet(errors);
+
+    return errors.length > 0
+      ? {
+        result: 'Err',
+        errors: errorsSet
+      }
+      : {
+        result: 'Ok'
+      };
+  },
+  beginsWithHash: function (tag) {
+    return tag.charAt(0) === '#';
+  },
+  isNotOnlyHash: function (tag) {
+    return tag !== '#';
+  },
+  separatedOnlyBySpace: function (tag) {
+    var match = tag.match(/#/g);
+    return match && match.length === 1;
+  },
+  noDuplicates: function (tags) {
+    var loweredTags = tags.map(function (tag) {
+      return tag.toLowerCase();
+    });
+    return loweredTags.length === arrayToSet(loweredTags).length;
+  },
+  fitsMaximumSize: function (tag, maxLength) {
+    return tag.length <= maxLength;
+  }
+};
+
 // -------- CONSTRUCTORS --------
 
 var initComment = function (avatar, message, name) {
@@ -126,27 +204,68 @@ var onLoaderChange = function (loader, editor) {
 
 // -------- CONTROLS --------
 
+var ImageEffect = {
+  MAX_BLUR_RADIUS_PX: 3,
+  MAX_BRIGHTNESS_VALUE: 3,
+  cssFunction: function (name, value) {
+    return name + '(' + value + ')';
+  },
+  chrome: function (level) {
+    return ImageEffect.cssFunction('grayscale', level / 100);
+  },
+  sepia: function (level) {
+    return ImageEffect.cssFunction('sepia', level / 100);
+  },
+  marvin: function (level) {
+    return ImageEffect.cssFunction('invert', level + '%');
+  },
+  phobos: function (level) {
+    return ImageEffect.cssFunction('blur', level * ImageEffect.MAX_BLUR_RADIUS_PX / 100 + 'px');
+  },
+  heat: function (level) {
+    return ImageEffect.cssFunction('brightness', level * ImageEffect.MAX_BRIGHTNESS_VALUE / 100);
+  },
+  none: function () {
+    return '';
+  }
+};
+
 var Editor = {
+  DEFAULT_EFFECT_LEVEL: 20,
   init: function () {
     var form = document.querySelector('.img-upload__form');
     var element = form.querySelector('.img-upload__overlay');
+    var imageUploadPreviewElement = element.querySelector('.img-upload__preview');
+
+    var effectRadioElements = element.querySelectorAll('input[name="effect"]');
     var effectLevelInputElement = element.querySelector('.effect-level');
+    var effectLevelValueElement = element.querySelector('.effect-level__value');
+    var effectLevelPinElement = element.querySelector('.effect-level__pin');
+    var effectLevelDepthElement = element.querySelector('.effect-level__depth');
+
+    var hashtagInputElement = element.querySelector('.text__hashtags');
 
     return {
       form: form,
       element: element,
-      levelInput: effectLevelInputElement,
+      imageUploadPreviewElement: imageUploadPreviewElement,
+      effectRadioElements: effectRadioElements,
+      effectLevelInputElement: effectLevelInputElement,
+      effectLevelValueElement: effectLevelValueElement,
+      effectLevelPinElement: effectLevelPinElement,
+      effectLevelDepthElement: effectLevelDepthElement,
+      hashtagInputElement: hashtagInputElement,
     };
   },
   set: function (control) {
     var effectLevelLineElement = control.element.querySelector('.effect-level__line');
     effectLevelLineElement.addEventListener('mouseup', Editor.effectLevelLineClickHandler(control));
 
-    control.element.querySelectorAll('input[type="radio"].effects__radio').forEach(function (elem) {
+    control.effectRadioElements.forEach(function (elem) {
       elem.addEventListener('click', Editor.effectsRadioClickHandler(control));
     });
 
-    control.form.addEventListener('submit', Editor.formSubmitHandler(control));
+    control.hashtagInputElement.addEventListener('input', Editor.hashtagInputHandler(control));
   },
   closeButtonClickHandler: function (control, onClose) {
     return function () {
@@ -155,37 +274,62 @@ var Editor = {
   },
   keyDownEventHandler: function (control, onClose) {
     return function (ev) {
-      if (ev.key === 'Escape') {
+      if (ev.key === 'Escape' && ev.target !== control.hashtagInputElement) {
         Editor.hide(control, onClose);
       }
     };
   },
   effectLevelLineClickHandler: function (control) {
-    return function () {
-      control.levelInput.value = 50; // TODO: рассчитать необходимый уровень
+    return function (ev) {
+      var lineWidth = ev.currentTarget.offsetWidth;
+      var mouseX = ev.offsetX;
+      Editor.setEffectLevel(control, lineWidth !== 0 ? mouseX * 100 / lineWidth : 0);
     };
   },
   effectsRadioClickHandler: function (control) {
-    return function () {
-      control.element.parentNode.reset();
-    };
-  },
-  formSubmitHandler: function (control) {
     return function (ev) {
-      var hashtagsElement = control.form.querySelector('.text__hashtags');
-
-      var tags = hashtagsElement.value.split('#');
-
-      tags.forEach(function (tag) {
-        if (tag.length === 0) {
-          return;
-        }
-        if (tag.length < 3) {
-          hashtagsElement.setCustomValidity('Длина хэштэга не должна быть менее 3-х символов');
-          ev.preventDefault();
+      control.effectRadioElements.forEach(function (elem) {
+        if (elem === ev.target) {
+          elem.checked = true;
+          Editor.setEffectLevel(control);
         }
       });
     };
+  },
+  hashtagInputHandler: function (control) {
+    return function (ev) {
+      var validation = Editor.validateHashtag(control);
+
+      if (validation.result === 'Ok') {
+        control.hashtagInputElement.setCustomValidity('');
+        return;
+      }
+
+      ev.preventDefault();
+      var validity = validation.errors.reduce(function (prev, cur) {
+        return prev.concat('; ', cur);
+      });
+      control.hashtagInputElement.setCustomValidity(validity);
+    };
+  },
+  getSelectedEffect: function (control) {
+    var checkedEffect = Array.from(control.effectRadioElements).find(function (elem) {
+      return elem.checked;
+    });
+    return checkedEffect.value;
+  },
+  setEffectLevel: function (control, level) {
+    var appliedLevel = Math.round(level) || control.effectLevelValueElement.value;
+    var cssFilter = ImageEffect[Editor.getSelectedEffect(control)](appliedLevel);
+
+    control.effectLevelValueElement.value = appliedLevel;
+    control.effectLevelPinElement.style.left = appliedLevel.toString() + '%';
+    control.effectLevelDepthElement.style.width = appliedLevel.toString() + '%';
+    control.imageUploadPreviewElement.querySelector('img').style.filter = cssFilter;
+  },
+  validateHashtag: function (control) {
+    var hashtagsElement = control.form.querySelector('.text__hashtags');
+    return Hashtag.validate(hashtagsElement.value);
   },
   show: function (control, onClose) {
     control.element.classList.remove('hidden');
