@@ -17,5 +17,5 @@
   window.common = {
     onEditorClose: onEditorClose,
     onLoaderChange: onLoaderChange,
-  }
+  };
 })();
