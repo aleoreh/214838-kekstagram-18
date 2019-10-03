@@ -1,8 +1,8 @@
 'use strict';
 
 (function () {
-  window.ESC_KEYCODE = 27;
-  window.CSS_HIDDEN_CLASS = 'hidden';
+  var ESC_KEYCODE = 27;
+  var CSS_HIDDEN_CLASS = 'hidden';
 
   var onEditorClose = function () {
     return window.fileLoader.reset();
@@ -15,6 +15,8 @@
   };
 
   window.common = {
+    ESC_KEYCODE: ESC_KEYCODE,
+    CSS_HIDDEN_CLASS: CSS_HIDDEN_CLASS,
     onEditorClose: onEditorClose,
     onLoaderChange: onLoaderChange,
   };

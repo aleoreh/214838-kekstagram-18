@@ -1,19 +1,19 @@
 'use strict';
 
 (function () {
-  var form = document.querySelector('.img-upload__form');
-  var element = form.querySelector('.img-upload__overlay');
-  var imageUploadPreviewElement = element.querySelector('.img-upload__preview');
+  var formElement = document.querySelector('.img-upload__form');
+  var rootElement = formElement.querySelector('.img-upload__overlay');
+  var imageUploadPreviewElement = rootElement.querySelector('.img-upload__preview');
 
-  var effectRadioElements = element.querySelectorAll('input[name="effect"]');
-  var effectLevelValueElement = element.querySelector('.effect-level__value');
-  var effectLevelPinElement = element.querySelector('.effect-level__pin');
-  var effectLevelDepthElement = element.querySelector('.effect-level__depth');
+  var effectRadioElements = rootElement.querySelectorAll('input[name="effect"]');
+  var effectLevelValueElement = rootElement.querySelector('.effect-level__value');
+  var effectLevelPinElement = rootElement.querySelector('.effect-level__pin');
+  var effectLevelDepthElement = rootElement.querySelector('.effect-level__depth');
 
-  var hashtagInputElement = element.querySelector('.text__hashtags');
+  var hashtagInputElement = rootElement.querySelector('.text__hashtags');
 
   var setup = function () {
-    var effectLevelLineElement = element.querySelector('.effect-level__line');
+    var effectLevelLineElement = rootElement.querySelector('.effect-level__line');
     effectLevelLineElement.addEventListener('mouseup', editorEffectLevelLineClickHandler);
 
     effectRadioElements.forEach(function (elem) {
@@ -28,7 +28,7 @@
   };
 
   var editorKeyDownEventHandler = function (ev) {
-    if (ev.keyCode === window.ESC_KEYCODE && ev.target !== hashtagInputElement) {
+    if (ev.keyCode === window.common.ESC_KEYCODE && ev.target !== hashtagInputElement) {
       hide(window.onEditorClose);
     }
   };
@@ -48,7 +48,7 @@
     });
   };
   var editorHashtagInputHandler = function (ev) {
-    var hashtagsElement = form.querySelector('.text__hashtags');
+    var hashtagsElement = formElement.querySelector('.text__hashtags');
     var validation = window.hashtags.validate(hashtagsElement.value);
 
     if (validation.result === 'Ok') {
@@ -81,18 +81,18 @@
   };
 
   var show = function () {
-    element.classList.remove(window.CSS_HIDDEN_CLASS);
+    rootElement.classList.remove(window.common.CSS_HIDDEN_CLASS);
 
-    var closeButton = element.querySelector('#upload-cancel');
+    var closeButton = rootElement.querySelector('#upload-cancel');
     closeButton.addEventListener('click', editorCloseButtonClickHandler);
 
     document.addEventListener('keydown', editorKeyDownEventHandler);
   };
 
   var hide = function () {
-    element.removeEventListener('click', editorCloseButtonClickHandler);
+    rootElement.removeEventListener('click', editorCloseButtonClickHandler);
     document.removeEventListener('keydown', editorKeyDownEventHandler);
-    element.classList.add(window.CSS_HIDDEN_CLASS);
+    rootElement.classList.add(window.common.CSS_HIDDEN_CLASS);
     window.common.onEditorClose();
   };
 

@@ -6,6 +6,11 @@
   var MAX_BLUR_RADIUS_PX = 3;
   var MAX_BRIGHTNESS_VALUE = 3;
 
+  var MAX_TAGS_COUNT = 5;
+  var MAX_TAG_LENGTH = 20;
+
+  // -------- EFFECTS --------
+
   var chrome = function (level) {
     return window.utils.cssFunction('grayscale', level / 100);
   };
@@ -30,21 +35,7 @@
     return '';
   };
 
-  window.editorHelpers = {
-    imageEffects: {
-      chrome: chrome,
-      sepia: sepia,
-      marvin: marvin,
-      phobos: phobos,
-      heat: heat,
-      none: none
-    }
-  };
-})();
-
-(function () {
-  var MAX_TAGS_COUNT = 5;
-  var MAX_TAG_LENGTH = 20;
+  // -------- HASHTAGS --------
 
   var beginsWithHash = function (tag) {
     return tag.charAt(0) === '#';
@@ -117,7 +108,18 @@
       };
   };
 
+  window.editorHelpers = {
+    imageEffects: {
+      chrome: chrome,
+      sepia: sepia,
+      marvin: marvin,
+      phobos: phobos,
+      heat: heat,
+      none: none
+    }
+  };
+
   window.hashtags = {
-    validate: validateHashtag,
+    validate: validateHashtag
   };
 })();

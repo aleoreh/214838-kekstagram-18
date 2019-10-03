@@ -1,15 +1,15 @@
 'use strict';
 
 (function () {
-  var element = document.querySelector('#upload-file');
+  var rootElement = document.querySelector('#upload-file');
 
   var setup = function (onChange) {
-    element.onChange = null;
-    element.addEventListener('change', onChange);
+    rootElement.onChange = null;
+    rootElement.addEventListener('change', onChange);
   };
 
   var reset = function () {
-    element.value = '';
+    rootElement.value = '';
   };
 
   window.fileLoader = {

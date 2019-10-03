@@ -17,13 +17,13 @@
   };
 
   var initNewPictureElement = function (picture) {
-    var element = pictureTemplate.cloneNode(true);
+    var pictureElement = pictureTemplate.cloneNode(true);
 
-    element.querySelector('.picture__img').setAttribute('src', picture.url);
-    element.querySelector('.picture__likes').textContent = picture.likes;
-    element.querySelector('.picture__comments').textContent = picture.comments.length;
+    pictureElement.querySelector('.picture__img').setAttribute('src', picture.url);
+    pictureElement.querySelector('.picture__likes').textContent = picture.likes;
+    pictureElement.querySelector('.picture__comments').textContent = picture.comments.length;
 
-    return element;
+    return pictureElement;
   };
 
   var show = function () {
