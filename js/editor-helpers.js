@@ -1,5 +1,7 @@
 'use strict';
 
+// NOTE: Получилось несколько iife на модуль. Это нормально?
+
 (function () {
   var MAX_BLUR_RADIUS_PX = 3;
   var MAX_BRIGHTNESS_VALUE = 3;
