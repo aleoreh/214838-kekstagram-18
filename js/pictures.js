@@ -1,8 +1,6 @@
 'use strict';
 
 (function () {
-  var PICTURES_COUNT = 25;
-
   var pictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
   var picturesElement = document.querySelector('.pictures');
 
@@ -26,8 +24,7 @@
     return pictureElement;
   };
 
-  var show = function () {
-    var pictures = window.data.generateItems(PICTURES_COUNT, window.data.generatePicture);
+  var show = function (pictures) {
     var newPictureNodes = pictures.map(initNewPictureElement);
     showPictures(newPictureNodes);
   };
