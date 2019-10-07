@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var BASE_URL = 'https://js.dump.academy/kekstagram/';
+
   var get = function (url, onSuccess, onError) {
     var xhr = new XMLHttpRequest();
 
@@ -29,6 +31,7 @@
   };
 
   window.httpClient = {
+    BASE_URL: BASE_URL,
     get: get
   };
 })();
