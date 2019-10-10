@@ -19,17 +19,17 @@
     window.pictures.show(window.pictures.applyFilter(filter));
   };
 
-  var popularClickHandler = function () {
+  var popularClickHandler = window.debounce(function () {
     applyFilter(popularFilterButton, window.pictures.Filter.None);
-  };
+  });
 
-  var randomClickHandler = function () {
+  var randomClickHandler = window.debounce(function () {
     applyFilter(randomFilterButton, window.pictures.Filter.Random);
-  };
+  });
 
-  var discussedClickHandler = function () {
+  var discussedClickHandler = window.debounce(function () {
     applyFilter(discussedFilterButton, window.pictures.Filter.Discussed);
-  };
+  });
 
   popularFilterButton.addEventListener('click', popularClickHandler);
   randomFilterButton.addEventListener('click', randomClickHandler);
