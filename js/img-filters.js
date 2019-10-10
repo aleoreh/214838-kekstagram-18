@@ -1,13 +1,13 @@
 'use strict';
 (function () {
   var rootElement = document.querySelector('.img-filters');
-  var allFilterButtons = document.querySelectorAll('.img-filters__button');
-  var popularFilterButton = rootElement.querySelector('#filter-popular');
-  var randomFilterButton = rootElement.querySelector('#filter-random');
-  var discussedFilterButton = rootElement.querySelector('#filter-discussed');
+  var allFilterButtonsElement = document.querySelectorAll('.img-filters__button');
+  var popularFilterButtonElement = rootElement.querySelector('#filter-popular');
+  var randomFilterButtonElement = rootElement.querySelector('#filter-random');
+  var discussedFilterButtonElement = rootElement.querySelector('#filter-discussed');
 
   var resetFilterButtons = function () {
-    allFilterButtons.forEach(function (button) {
+    allFilterButtonsElement.forEach(function (button) {
       button.classList.remove('img-filters__button--active');
     });
   };
@@ -20,20 +20,20 @@
   };
 
   var popularClickHandler = window.debounce(function () {
-    applyFilter(popularFilterButton, window.pictures.Filter.None);
+    applyFilter(popularFilterButtonElement, window.pictures.Filter.getPicturesWithoutFilter);
   });
 
   var randomClickHandler = window.debounce(function () {
-    applyFilter(randomFilterButton, window.pictures.Filter.Random);
+    applyFilter(randomFilterButtonElement, window.pictures.Filter.getRandomOrderedPictures);
   });
 
   var discussedClickHandler = window.debounce(function () {
-    applyFilter(discussedFilterButton, window.pictures.Filter.Discussed);
+    applyFilter(discussedFilterButtonElement, window.pictures.Filter.getMostDiscussedPictures);
   });
 
-  popularFilterButton.addEventListener('click', popularClickHandler);
-  randomFilterButton.addEventListener('click', randomClickHandler);
-  discussedFilterButton.addEventListener('click', discussedClickHandler);
+  popularFilterButtonElement.addEventListener('click', popularClickHandler);
+  randomFilterButtonElement.addEventListener('click', randomClickHandler);
+  discussedFilterButtonElement.addEventListener('click', discussedClickHandler);
 
   var show = function () {
     rootElement.classList.remove('img-filters--inactive');

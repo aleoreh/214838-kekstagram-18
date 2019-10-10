@@ -3,15 +3,17 @@
 (function () {
   var RANDOM_FILTER_COUNT = 10;
 
+  var items = [];
+
   var Filter = {
-    None: function () {
-      return window.state.pictures;
+    getPicturesWithoutFilter: function () {
+      return window.pictures.items;
     },
-    Random: function () {
-      var randoms = window.utils.range(window.state.pictures.length - 1).map(function () {
-        return window.utils.randomInt(window.state.pictures.length - 1);
+    getRandomOrderedPictures: function () {
+      var randoms = window.utils.range(window.pictures.items.length - 1).map(function () {
+        return window.utils.randomInt(window.pictures.items.length - 1);
       });
-      return window.state.pictures
+      return window.pictures.items
       .slice()
       .map(function (picture, index) {
         return {
@@ -27,8 +29,8 @@
       })
       .slice(0, RANDOM_FILTER_COUNT);
     },
-    Discussed: function () {
-      return window.state.pictures.slice().sort(function (prev, cur) {
+    getMostDiscussedPictures: function () {
+      return window.pictures.items.slice().sort(function (prev, cur) {
         return cur.comments.length - prev.comments.length;
       });
     }
@@ -58,7 +60,7 @@
   };
 
   var applyFilter = function (filteringFunction) {
-    return filteringFunction(window.state.pictures);
+    return filteringFunction(window.pictures.items);
   };
 
   var show = function (pictures) {
@@ -74,6 +76,7 @@
   };
 
   window.pictures = {
+    items: items,
     Filter: Filter,
     applyFilter: applyFilter,
     show: show,
