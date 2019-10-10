@@ -1,13 +1,13 @@
 'use strict';
 (function () {
   var rootElement = document.querySelector('.img-filters');
-  var allFilterButtonsElement = document.querySelectorAll('.img-filters__button');
+  var allFilterButtonsElements = document.querySelectorAll('.img-filters__button');
   var popularFilterButtonElement = rootElement.querySelector('#filter-popular');
   var randomFilterButtonElement = rootElement.querySelector('#filter-random');
   var discussedFilterButtonElement = rootElement.querySelector('#filter-discussed');
 
   var resetFilterButtons = function () {
-    allFilterButtonsElement.forEach(function (button) {
+    allFilterButtonsElements.forEach(function (button) {
       button.classList.remove('img-filters__button--active');
     });
   };
