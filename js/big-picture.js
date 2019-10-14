@@ -7,6 +7,8 @@
   var commentsCountElement = bigPictureElement.querySelector('.comments-count');
   var socialCommentsElement = bigPictureElement.querySelector('.social__comments');
   var socialCaptionElement = bigPictureElement.querySelector('.social__caption');
+  var socialCommentCountElement = bigPictureElement.querySelector('.social__comment-count');
+  var commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
 
   var addComment = function (comment) {
     var commentTemplate = document.createElement('template');
@@ -44,6 +46,9 @@
     });
 
     socialCaptionElement.textContent = picture.description;
+
+    socialCommentCountElement.classList.add('visually-hidden');
+    commentsLoaderElement.classList.add('visually-hidden');
   };
 
   var hide = function () {
