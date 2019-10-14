@@ -11,27 +11,24 @@
   var commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
 
   var addComment = function (comment) {
-    var commentTemplate = document.createElement('template');
-    commentTemplate.innerHtml =
-      // eslint-disable-next-line no-multi-str
-      '<li class="social__comment">\
-      <img\
-        class="social__picture"\
-        src=""\
-        alt=""\
-        width="35" height="35">\
-      <p class="social__text"></p>\
-      </li>';
+    var commentFragment = document.createDocumentFragment();
 
-    socialCommentsElement.appendChild(commentTemplate.content);
-    var commentImg = socialCommentsElement.querySelector('img');
-    var socialText = socialCommentsElement.querySelector('.social__text');
+    var li = commentFragment.appendChild(document.createElement('li'));
+    var img = li.appendChild(document.createElement('img'));
+    var p = li.appendChild(document.createElement('p'));
 
-    commentImg.src = comment.avatar;
-    commentImg.alt = comment.name;
-    socialText.textContent = comment.message;
+    li.classList.add('social__comment');
 
-    return commentTemplate;
+    img.classList.add('social__picture');
+    img.src = comment.avatar;
+    img.alt = comment.name;
+
+    p.classList.add('social__text');
+    p.textContent = comment.message;
+
+    socialCommentsElement.appendChild(commentFragment);
+
+    return commentFragment;
   };
 
   var hide = function () {
@@ -53,6 +50,9 @@
     likesCountElement.textContent = picture.likes;
     commentsCountElement.textContent = picture.comments.length;
     bigPictureElement.classList.remove('hidden');
+    socialCommentsElement.childNodes.forEach(function (node) {
+      socialCommentsElement.removeChild(node);
+    });
 
     picture.comments.forEach(function (comment) {
       var newComment = addComment(comment);
