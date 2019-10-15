@@ -56,6 +56,10 @@
     pictureElement.querySelector('.picture__likes').textContent = picture.likes;
     pictureElement.querySelector('.picture__comments').textContent = picture.comments.length;
 
+    pictureElement.addEventListener('click', function () {
+      window.bigPicture.show(picture);
+    });
+
     return pictureElement;
   };
 
