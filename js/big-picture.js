@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var MAX_COMMENT_LENGTH = 140;
+
   var bigPictureElement = document.querySelector('.big-picture');
   var bigPictureImgElement = bigPictureElement.querySelector('.big-picture__img img');
   var likesCountElement = bigPictureElement.querySelector('.likes-count');
@@ -9,6 +11,47 @@
   var socialCaptionElement = bigPictureElement.querySelector('.social__caption');
   var socialCommentCountElement = bigPictureElement.querySelector('.social__comment-count');
   var commentsLoaderElement = bigPictureElement.querySelector('.comments-loader');
+  var socialFooterTextElement = bigPictureElement.querySelector('.social__footer-text');
+
+  var setup = function () {
+    socialFooterTextElement.addEventListener('input', inputCommentEventHandler);
+  };
+
+  var inputCommentEventHandler = function (ev) {
+    var validation = validateComment(ev.target.value);
+
+    if (validation.result === 'Ok') {
+      socialFooterTextElement.setCustomValidity('');
+      return;
+    }
+
+    ev.preventDefault();
+
+    var validity = validation.errors.reduce(function (prev, cur) {
+      return prev.concat('; ', cur);
+    });
+    socialFooterTextElement.setCustomValidity(validity);
+    // socialFooterTextElement.
+  };
+
+  var validateComment = function (value) {
+    var errors = [];
+
+    if (value.length > MAX_COMMENT_LENGTH) {
+      errors.push('Длина комментария не может превышать ' + MAX_COMMENT_LENGTH + ' символов');
+    }
+
+    if (errors.length > 0) {
+      return {
+        result: 'Err',
+        errors: errors
+      };
+    }
+
+    return {
+      result: 'Ok'
+    };
+  };
 
   var addComment = function (comment) {
     var commentFragment = document.createDocumentFragment();
@@ -40,7 +83,7 @@
   };
 
   var keyDownEventHandler = function (ev) {
-    if (ev.keyCode === window.common.ESC_KEYCODE) {
+    if (ev.keyCode === window.common.ESC_KEYCODE && ev.target !== socialFooterTextElement) {
       hide();
     }
   };
@@ -69,6 +112,8 @@
 
     document.addEventListener('keydown', keyDownEventHandler);
   };
+
+  setup();
 
   window.bigPicture = {
     show: show,
