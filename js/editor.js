@@ -28,35 +28,29 @@
 
   var pinGrabHandler = function (ev) {
     ev.preventDefault();
-
-    var startCoords = {
+    var coords = {
       x: ev.clientX,
     };
-
     var parentBoundingRect = ev.target.offsetParent.getBoundingClientRect();
-    var boundCoords = {
+    var parentRect = {
       minX: parentBoundingRect.left,
-      maxX: parentBoundingRect.right
+      maxX: parentBoundingRect.right,
+      width: parentBoundingRect.width
     };
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
-
-      var clientX = Math.max(Math.min(moveEvt.clientX, boundCoords.maxX), boundCoords.minX);
-
+      var clientX = Math.max(Math.min(moveEvt.clientX, parentRect.maxX), parentRect.minX);
       var shift = {
-        x: clientX - startCoords.x,
+        x: clientX - coords.x,
       };
-
-      startCoords.x += shift.x;
-
+      coords.x += shift.x;
       effectLevelPinElement.style.left = (effectLevelPinElement.offsetLeft + shift.x) + 'px';
+      editorSetEffectLevel((coords.x - parentRect.minX) / parentRect.width * 100);
     };
 
     var onMouseUp = function (upEv) {
       upEv.preventDefault();
-
-      // editorSetEffectLevel(lineWidth !== 0 ? mouseX * 100 / lineWidth : 0);
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
