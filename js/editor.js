@@ -12,15 +12,60 @@
 
   var hashtagInputElement = rootElement.querySelector('.text__hashtags');
 
-  var setup = function () {
-    var effectLevelLineElement = rootElement.querySelector('.effect-level__line');
-    effectLevelLineElement.addEventListener('mouseup', editorEffectLevelLineClickHandler);
+  var setupPinDrag = function () {
+    effectLevelPinElement.addEventListener('mousedown', pinGrabHandler);
+  };
 
+  var setup = function () {
     effectRadioElements.forEach(function (elem) {
       elem.addEventListener('click', editorEffectsRadioClickHandler);
     });
 
     hashtagInputElement.addEventListener('input', editorHashtagInputHandler);
+
+    setupPinDrag();
+  };
+
+  var pinGrabHandler = function (ev) {
+    ev.preventDefault();
+
+    var startCoords = {
+      x: ev.clientX,
+    };
+
+    var parentBoundingRect = ev.target.offsetParent.getBoundingClientRect();
+    var boundCoords = {
+      minX: parentBoundingRect.left,
+      maxX: parentBoundingRect.right
+    };
+
+    var onMouseMove = function (moveEvt) {
+      moveEvt.preventDefault();
+
+      var clientX = Math.max(Math.min(moveEvt.clientX, boundCoords.maxX), boundCoords.minX);
+
+      var shift = {
+        x: clientX - startCoords.x,
+      };
+
+      startCoords.x += shift.x;
+
+      effectLevelPinElement.style.left = (effectLevelPinElement.offsetLeft + shift.x) + 'px';
+    };
+
+    var onMouseUp = function (upEv) {
+      upEv.preventDefault();
+
+      // editorSetEffectLevel(lineWidth !== 0 ? mouseX * 100 / lineWidth : 0);
+
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+
+
   };
 
   var editorCloseButtonClickHandler = function () {
@@ -31,12 +76,6 @@
     if (ev.keyCode === window.common.ESC_KEYCODE && ev.target !== hashtagInputElement) {
       hide(window.onEditorClose);
     }
-  };
-
-  var editorEffectLevelLineClickHandler = function (ev) {
-    var lineWidth = ev.currentTarget.offsetWidth;
-    var mouseX = ev.offsetX;
-    editorSetEffectLevel(lineWidth !== 0 ? mouseX * 100 / lineWidth : 0);
   };
 
   var editorEffectsRadioClickHandler = function (ev) {
@@ -75,7 +114,7 @@
     var cssFilter = window.editorHelpers.imageEffects[editorGetSelectedEffect()](appliedLevel);
 
     effectLevelValueElement.value = appliedLevel;
-    effectLevelPinElement.style.left = appliedLevel.toString() + '%';
+    // effectLevelPinElement.style.left = appliedLevel.toString() + '%';
     effectLevelDepthElement.style.width = appliedLevel.toString() + '%';
     imageUploadPreviewElement.querySelector('img').style.filter = cssFilter;
   };
