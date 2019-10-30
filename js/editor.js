@@ -28,25 +28,44 @@
 
   var pinGrabHandler = function (ev) {
     ev.preventDefault();
-    var coords = {
-      x: ev.clientX,
+
+    var lineRect = ev.target.offsetParent.getBoundingClientRect();
+    var pinRect = ev.target.getBoundingClientRect();
+
+    var calcPinCenter = function (pinLeft) {
+      return pinLeft + pinRect.width / 2;
     };
-    var parentBoundingRect = ev.target.offsetParent.getBoundingClientRect();
-    var parentRect = {
-      minX: parentBoundingRect.left,
-      maxX: parentBoundingRect.right,
-      width: parentBoundingRect.width
+
+    var calcPinLeftReal = function (pinLeftI) {
+      if (calcPinCenter(pinLeftI) < lineRect.left) {
+        return lineRect.left - pinRect.width / 2;
+      }
+      if (calcPinCenter(pinLeftI) > lineRect.right) {
+        return lineRect.right - pinRect.width / 2;
+      }
+      return pinLeftI;
     };
+
+    var calcPinLeftOnLine = function (pinLeft) {
+      return pinLeft - lineRect.left;
+    };
+
+    var clientX = ev.clientX;
+    var shift = 0;
+    var pinLeftImaginary = pinRect.left;
+    var pinLeftReal = calcPinLeftReal(pinLeftImaginary);
+    var offset = clientX - pinRect.left;
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
-      var clientX = Math.max(Math.min(moveEvt.clientX, parentRect.maxX), parentRect.minX);
-      var shift = {
-        x: clientX - coords.x,
-      };
-      coords.x += shift.x;
-      effectLevelPinElement.style.left = (effectLevelPinElement.offsetLeft + shift.x) + 'px';
-      editorSetEffectLevel((coords.x - parentRect.minX) / parentRect.width * 100);
+
+      shift = moveEvt.clientX - clientX;
+      clientX = moveEvt.clientX;
+      pinLeftImaginary += shift;
+      pinLeftReal = calcPinLeftReal(pinLeftImaginary);
+
+      effectLevelPinElement.style.left = calcPinLeftOnLine(pinLeftReal) + offset + 'px';
+      editorSetEffectLevel(calcPinCenter(calcPinLeftOnLine(pinLeftReal)) / lineRect.width * 100);
     };
 
     var onMouseUp = function (upEv) {
@@ -58,8 +77,6 @@
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-
-
   };
 
   var editorCloseButtonClickHandler = function () {
@@ -108,7 +125,6 @@
     var cssFilter = window.editorHelpers.imageEffects[editorGetSelectedEffect()](appliedLevel);
 
     effectLevelValueElement.value = appliedLevel;
-    // effectLevelPinElement.style.left = appliedLevel.toString() + '%';
     effectLevelDepthElement.style.width = appliedLevel.toString() + '%';
     imageUploadPreviewElement.querySelector('img').style.filter = cssFilter;
   };
